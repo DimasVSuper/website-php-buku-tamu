@@ -1,7 +1,7 @@
 <?php
 
 class BukutamuModel {
-    private $file = __DIR__ . './bukutamu.json';
+    private $file = __DIR__ . '/bukutamu.json';
     private $data = [];
 
     public function __construct() {
@@ -15,7 +15,7 @@ class BukutamuModel {
     public function save($data) {
         $data['id'] = uniqid();
         $this->data[] = $data;
-        return $this->commit();
+        return file_put_contents($this->file, json_encode($this->data, JSON_PRETTY_PRINT)) !== false;
     }
 
     // READ

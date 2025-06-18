@@ -121,6 +121,7 @@ class Router
         if (isset($this->routes[$method][$uri])) {
             call_user_func($this->routes[$method][$uri]);
         } else {
+            error_log("404: method=$method, uri=$uri");
             $this->render404();
         }
     }

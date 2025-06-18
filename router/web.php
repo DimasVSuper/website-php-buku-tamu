@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/router/router.php';
+require_once __DIR__ . '/router.php';
 require_once __DIR__ . '/../controller/BukutamuController.php';
 
 $router = new Router();
@@ -11,7 +11,7 @@ $router->get('/', function() {
 });
 
 // CREATE: Simpan data buku tamu (AJAX POST)
-$router->post('/bukutamu/simpan', function() {
+$router->post('/buku-tamu/simpan', function() {
     $controller = new BukutamuController();
     $data = [
         'nama'  => $_POST['nama'] ?? '',
@@ -22,14 +22,14 @@ $router->post('/bukutamu/simpan', function() {
 });
 
 // READ: Tampilkan semua data buku tamu (AJAX GET)
-$router->get('/bukutamu/data', function() {
+$router->get('/buku-tamu/data', function() {
     $controller = new BukutamuController();
     header('Content-Type: application/json');
     echo json_encode($controller->tampil());
 });
 
 // UPDATE: Update data buku tamu (AJAX PUT)
-$router->put('/bukutamu/update', function() {
+$router->put('/buku-tamu/update', function() {
     parse_str(file_get_contents("php://input"), $put_vars);
     $controller = new BukutamuController();
     // Pastikan $put_vars mengandung 'id', 'nama', 'email', 'pesan'
@@ -37,7 +37,7 @@ $router->put('/bukutamu/update', function() {
 });
 
 // DELETE: Hapus data buku tamu (AJAX DELETE)
-$router->delete('/bukutamu/hapus', function() {
+$router->delete('/buku-tamu/hapus', function() {
     parse_str(file_get_contents("php://input"), $del_vars);
     $controller = new BukutamuController();
     // Pastikan $del_vars['id'] tersedia
