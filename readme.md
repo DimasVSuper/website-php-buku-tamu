@@ -74,3 +74,9 @@ index.php
 ## ⚖️ Lisensi
 
 Proyek ini dirilis di bawah lisensi [MIT](https://opensource.org/licenses/MIT) — silakan gunakan, modifikasi, dan distribusikan secara bebas.
+
+---
+
+## 🤝 Kontributor
+
+Proyek ini dibuat oleh **Dimas Bayu Nugroho** bersama bantuan **GitHub Copilot**.
