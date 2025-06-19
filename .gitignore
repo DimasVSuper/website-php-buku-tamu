@@ -1,6 +1,3 @@
-# Ignore file data buku tamu (jika tidak ingin data user masuk repo)
-model/bukutamu.json
-
 # Ignore file dan folder sistem
 /vendor/
 node_modules/
