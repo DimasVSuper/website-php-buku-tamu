@@ -18,7 +18,7 @@ class BukutamuController {
         ) {
             return "Semua field wajib diisi!";
         }
-        return $this->model->save($data)
+        return $this->model->create($data)
             ? "Terima kasih, data berhasil disimpan!"
             : "Gagal menyimpan data.";
     }

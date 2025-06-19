@@ -18,6 +18,7 @@ class Router
         'GET'    => [],
         'POST'   => [],
         'PUT'    => [],
+        'PATCH'  => [],
         'DELETE' => [],
     ];
 
@@ -58,6 +59,14 @@ class Router
     public function put(string $path, $handler)
     {
         $this->add('PUT', $path, $handler);
+    }
+
+    /**
+     * Shortcut untuk mendaftarkan route PATCH.
+     */
+    public function patch(string $path, $handler)
+    {
+        $this->add('PATCH', $path, $handler);
     }
 
     /**
@@ -103,20 +112,15 @@ class Router
      */
     public function dispatch()
     {
-        $method = $_SERVER['REQUEST_METHOD'];
-        $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-
-        // Base path dinamis
+        $uri = $_SERVER['REQUEST_URI'];
         $scriptName = dirname($_SERVER['SCRIPT_NAME']);
-        $basePath = rtrim($scriptName, '/\\');
-        if ($basePath === '' || $basePath === '\\') $basePath = '';
-
-        if ($basePath && strpos($uri, $basePath) === 0) {
-            $uri = substr($uri, strlen($basePath));
+        if ($scriptName !== '/' && strpos($uri, $scriptName) === 0) {
+            $uri = substr($uri, strlen($scriptName));
         }
+        $uri = strtok($uri, '?');
+        $uri = '/' . ltrim($uri, '/'); // <--- Perbaikan di sini
 
-        // Normalisasi path
-        $uri = $this->normalizePath($uri);
+        $method = $_SERVER['REQUEST_METHOD'];
 
         if (isset($this->routes[$method][$uri])) {
             call_user_func($this->routes[$method][$uri]);

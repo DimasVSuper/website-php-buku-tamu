@@ -12,23 +12,25 @@ class BukutamuModel {
     }
 
     // CREATE
-    public function save($data) {
+    public function create($data) {
         $data['id'] = uniqid();
-        $this->data[] = $data;
-        return file_put_contents($this->file, json_encode($this->data, JSON_PRETTY_PRINT)) !== false;
+        $this->data[] = $data; // Tambah di akhir
+        return $this->commit();
     }
 
     // READ
     public function show() {
         // Urutkan dari terbaru
-        return array_reverse($this->data);
+        return $this->data;
     }
 
     // UPDATE
     public function update($data) {
         foreach ($this->data as $i => $item) {
             if ($item['id'] === $data['id']) {
-                $this->data[$i] = array_merge($item, $data);
+                $this->data[$i]['nama']  = $data['nama'];
+                $this->data[$i]['email'] = $data['email'];
+                $this->data[$i]['pesan'] = $data['pesan'];
                 return $this->commit();
             }
         }
@@ -49,5 +51,11 @@ class BukutamuModel {
     // Simpan ke file JSON
     private function commit() {
         return file_put_contents($this->file, json_encode($this->data, JSON_PRETTY_PRINT)) !== false;
+    }
+
+    public function simpan($data) {
+        return $this->create($data)
+            ? "Terima kasih, data berhasil disimpan!"
+            : "Gagal menyimpan data.";
     }
 }

@@ -12,7 +12,7 @@
         padding: 0;
     }
     .container {
-        max-width: 420px;
+        max-width: 480px;
         margin: 40px auto;
         background: #fff;
         border-radius: 16px;
@@ -49,20 +49,20 @@
         outline: none;
         background: #fff;
     }
-    button[type="submit"] {
-        width: 100%;
+    button[type="submit"], .btn {
         background: #1976d2;
         color: #fff;
         border: none;
         border-radius: 8px;
-        padding: 12px 0;
-        font-size: 16px;
+        padding: 10px 18px;
+        font-size: 15px;
         font-weight: 600;
         cursor: pointer;
         box-shadow: 0 2px 8px rgba(25,118,210,0.08);
         transition: background 0.2s;
+        margin-right: 6px;
     }
-    button[type="submit"]:hover {
+    button[type="submit"]:hover, .btn:hover {
         background: #1565c0;
     }
     #response {
@@ -103,6 +103,64 @@
     #popup.error {
         background: #d32f2f;
     }
+    .tamu-list {
+        margin-top: 32px;
+    }
+    .tamu-item {
+        background: #f9fafb;
+        border-radius: 8px;
+        padding: 14px 14px 10px 14px;
+        margin-bottom: 14px;
+        box-shadow: 0 1px 4px rgba(60,72,88,0.06);
+        position: relative;
+        transition: box-shadow 0.2s;
+    }
+    .tamu-item.editing {
+        background: #e3f2fd;
+        box-shadow: 0 2px 8px rgba(25,118,210,0.10);
+    }
+    .tamu-item .tamu-info {
+        margin-bottom: 6px;
+    }
+    .tamu-item .tamu-nama {
+        font-weight: 600;
+        color: #1976d2;
+        font-size: 16px;
+    }
+    .tamu-item .tamu-email {
+        color: #374151;
+        font-size: 14px;
+        margin-left: 8px;
+    }
+    .tamu-item .tamu-pesan {
+        color: #374151;
+        font-size: 15px;
+        margin-bottom: 8px;
+    }
+    .tamu-item .tamu-actions {
+        text-align: right;
+    }
+    .btn-edit {
+        background: #fff3e0;
+        color: #ff9800;
+        border: 1px solid #ffe0b2;
+    }
+    .btn-edit:hover {
+        background: #ffe0b2;
+        color: #e65100;
+    }
+    .btn-delete {
+        background: #ffebee;
+        color: #d32f2f;
+        border: 1px solid #ffcdd2;
+    }
+    .btn-delete:hover {
+        background: #ffcdd2;
+        color: #b71c1c;
+    }
+    .edit-form input, .edit-form textarea {
+        margin-bottom: 10px;
+    }
     @media (max-width: 600px) {
         .container {
             margin: 16px;
@@ -115,6 +173,7 @@
     <div class="container">
         <h2>Buku Tamu</h2>
         <form id="bukuTamuForm" method="post">
+            <input type="hidden" id="editId" name="id">
             <label for="nama">Nama:</label>
             <input type="text" id="nama" name="nama" required>
 
@@ -124,10 +183,12 @@
             <label for="pesan">Pesan:</label>
             <textarea id="pesan" name="pesan" rows="4" required></textarea>
 
-            <button type="submit">Kirim</button>
+            <button type="submit" id="submitBtn">Kirim</button>
+            <button type="button" id="cancelEditBtn" style="display:none;background:#e0e0e0;color:#374151;">Batal</button>
         </form>
         <div id="response"></div>
         <div id="popup"></div>
+        <div class="tamu-list" id="tamuList"></div>
     </div>
 
     <script>
@@ -145,28 +206,164 @@
         }, 2000);
     }
 
-    document.getElementById('bukuTamuForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const form = e.target;
-        const formData = new FormData(form);
+    function renderTamuList(data) {
+        const list = document.getElementById('tamuList');
+        if (!data || data.length === 0) {
+            list.innerHTML = '<div style="text-align:center;color:#aaa;">Belum ada tamu.</div>';
+            return;
+        }
+        list.innerHTML = '';
+        data.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'tamu-item';
+            div.dataset.id = item.id;
+            div.innerHTML = `
+                <div class="tamu-info">
+                    <span class="tamu-nama">${item.nama}</span>
+                    <span class="tamu-email">&lt;${item.email}&gt;</span>
+                </div>
+                <div class="tamu-pesan">${item.pesan}</div>
+                <div class="tamu-actions">
+                    <button class="btn btn-edit" data-id="${item.id}">Edit</button>
+                    <button class="btn btn-delete" data-id="${item.id}">Hapus</button>
+                </div>
+            `;
+            list.appendChild(div);
+        });
+    }
 
-        fetch('buku-tamu/simpan', {
+    function fetchTamuList() {
+        fetch('data')
+            .then(res => res.json())
+            .then(data => renderTamuList(data))
+            .catch(() => {
+                document.getElementById('tamuList').innerHTML = '<div style="text-align:center;color:#d32f2f;">Gagal memuat data tamu.</div>';
+            });
+    }
+
+    // Fungsi tambah tamu
+    function tambahTamu(formData, form) {
+        fetch('simpan', {
             method: 'POST',
             body: formData
         })
         .then(response => response.text())
         .then(data => {
             form.reset();
+            document.getElementById('editId').value = '';
+            document.getElementById('submitBtn').textContent = 'Kirim';
+            document.getElementById('cancelEditBtn').style.display = 'none';
+            fetchTamuList();
             if (data.toLowerCase().includes('berhasil')) {
                 showPopup('Data berhasil di kirim', true);
             } else {
                 showPopup('Ada yang salah, silahkan coba lagi', false);
             }
         })
-        .catch(error => {
+        .catch(() => {
             showPopup('Ada yang salah, silahkan coba lagi', false);
         });
+    }
+
+    // Fungsi update tamu
+    function updateTamu(formData, form) {
+        const obj = {};
+        for (const [key, value] of formData.entries()) {
+            obj[key] = value;
+        }
+        fetch('update', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(obj)
+        })
+        .then(response => response.text())
+        .then(data => {
+            form.reset();
+            document.getElementById('editId').value = '';
+            document.getElementById('submitBtn').textContent = 'Kirim';
+            document.getElementById('cancelEditBtn').style.display = 'none';
+            fetchTamuList();
+            if (data.toLowerCase().includes('berhasil')) {
+                showPopup('Data berhasil diupdate', true);
+            } else {
+                showPopup('Ada yang salah, silahkan coba lagi', false);
+            }
+        })
+        .catch(() => {
+            showPopup('Ada yang salah, silahkan coba lagi', false);
+        });
+    }
+
+    // Event submit form
+    document.getElementById('bukuTamuForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+        const id = formData.get('id');
+        const isEdit = id && id.trim() !== '';
+
+        if (isEdit) {
+            updateTamu(formData, form);
+        } else {
+            tambahTamu(formData, form);
+        }
     });
+
+    // Cancel edit
+    document.getElementById('cancelEditBtn').addEventListener('click', function() {
+        document.getElementById('bukuTamuForm').reset();
+        document.getElementById('editId').value = '';
+        document.getElementById('submitBtn').textContent = 'Kirim';
+        this.style.display = 'none';
+    });
+
+    // Delegasi event untuk Edit dan Hapus
+    document.getElementById('tamuList').addEventListener('click', function(e) {
+        if (e.target.classList.contains('btn-edit')) {
+            const id = e.target.dataset.id;
+            fetch('data')
+                .then(res => res.json())
+                .then(data => {
+                    const tamu = data.find(item => item.id === id);
+                    if (tamu) {
+                        document.getElementById('editId').value = tamu.id;
+                        document.getElementById('nama').value = tamu.nama;
+                        document.getElementById('email').value = tamu.email;
+                        document.getElementById('pesan').value = tamu.pesan;
+                        document.getElementById('submitBtn').textContent = 'Update';
+                        document.getElementById('cancelEditBtn').style.display = 'inline-block';
+                    }
+                });
+        }
+        if (e.target.classList.contains('btn-delete')) {
+            const id = e.target.dataset.id;
+            if (confirm('Yakin ingin menghapus data ini?')) {
+                const formData = new FormData();
+                formData.append('id', id);
+                fetch('hapus', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(data => {
+                    fetchTamuList();
+                    if (data.toLowerCase().includes('berhasil')) {
+                        showPopup('Data berhasil dihapus', true);
+                    } else {
+                        showPopup('Gagal menghapus data', false);
+                    }
+                })
+                .catch(() => {
+                    showPopup('Gagal menghapus data', false);
+                });
+            }
+        }
+    });
+
+    // Load data awal
+    fetchTamuList();
     </script>
 </body>
 </html>

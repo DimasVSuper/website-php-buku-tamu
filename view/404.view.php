@@ -59,7 +59,39 @@
         <h2>Halaman Tidak Ditemukan</h2>
         <p>Maaf, halaman yang Anda cari tidak tersedia.<br>
         Silakan kembali ke halaman utama.</p>
-        <a href="/buku-tamu">Kembali ke Beranda</a>
+        <a href="/">Kembali ke Beranda</a>
     </div>
+    <script>
+    function updateTamu(formData, form) {
+        // Ubah FormData ke objek
+        const obj = {};
+        for (const [key, value] of formData.entries()) {
+            obj[key] = value;
+        }
+        fetch('update', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(obj)
+        })
+        .then(response => response.text())
+        .then(data => {
+            form.reset();
+            document.getElementById('editId').value = '';
+            document.getElementById('submitBtn').textContent = 'Kirim';
+            document.getElementById('cancelEditBtn').style.display = 'none';
+            fetchTamuList();
+            if (data.toLowerCase().includes('berhasil')) {
+                showPopup('Data berhasil diupdate', true);
+            } else {
+                showPopup('Ada yang salah, silahkan coba lagi', false);
+            }
+        })
+        .catch(() => {
+            showPopup('Ada yang salah, silahkan coba lagi', false);
+        });
+    }
+    </script>
 </body>
 </html>

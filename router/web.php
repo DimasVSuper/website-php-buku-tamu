@@ -9,9 +9,12 @@ $router = new Router();
 $router->get('/', function() {
     require __DIR__ . '/../view/bukutamu.view.php';
 });
+$router->get('', function() { // Tambahkan ini!
+    require __DIR__ . '/../view/bukutamu.view.php';
+});
 
 // CREATE: Simpan data buku tamu (AJAX POST)
-$router->post('/buku-tamu/simpan', function() {
+$router->post('simpan', function() {
     $controller = new BukutamuController();
     $data = [
         'nama'  => $_POST['nama'] ?? '',
@@ -22,25 +25,29 @@ $router->post('/buku-tamu/simpan', function() {
 });
 
 // READ: Tampilkan semua data buku tamu (AJAX GET)
-$router->get('/buku-tamu/data', function() {
+$router->get('data', function() {
     $controller = new BukutamuController();
     header('Content-Type: application/json');
     echo json_encode($controller->tampil());
 });
 
-// UPDATE: Update data buku tamu (AJAX PUT)
-$router->put('/buku-tamu/update', function() {
-    parse_str(file_get_contents("php://input"), $put_vars);
+// UPDATE: Update data buku tamu (AJAX PATCH)
+$router->patch('update', function() {
+    $patch_vars = json_decode(file_get_contents("php://input"), true);
+    error_log('PATCH DATA: ' . print_r($patch_vars, true));
     $controller = new BukutamuController();
-    // Pastikan $put_vars mengandung 'id', 'nama', 'email', 'pesan'
-    echo $controller->update($put_vars);
+    echo $controller->update($patch_vars);
 });
 
-// DELETE: Hapus data buku tamu (AJAX DELETE)
-$router->delete('/buku-tamu/hapus', function() {
+// DELETE: Hapus data buku tamu (AJAX POST/DELETE)
+$router->post('hapus', function() {
+    $controller = new BukutamuController();
+    $id = $_POST['id'] ?? '';
+    echo $controller->hapus($id);
+});
+$router->delete('hapus', function() {
     parse_str(file_get_contents("php://input"), $del_vars);
     $controller = new BukutamuController();
-    // Pastikan $del_vars['id'] tersedia
     echo $controller->hapus($del_vars['id'] ?? null);
 });
 

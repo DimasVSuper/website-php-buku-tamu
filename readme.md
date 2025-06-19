@@ -35,6 +35,21 @@ index.php
 
 ---
 
+## Algoritma & Struktur Data
+
+- **Struktur Data:**  
+  Data buku tamu disimpan dalam bentuk **array (list/sequence)** di file JSON.
+- **Algoritma Tambah:**  
+  Data baru selalu ditambahkan di akhir array, sehingga urutan input tetap terjaga.
+- **Algoritma Update:**  
+  Data diubah langsung pada index yang sesuai (berdasarkan `id`), tanpa mengubah urutan array.
+- **Algoritma Hapus:**  
+  Data dihapus dari array berdasarkan `id`, index lain tetap.
+- **Catatan:**  
+  Dengan cara ini, urutan data tetap stabil: data pertama tetap di index pertama, data lain tetap di posisi aslinya walau diubah.
+
+---
+
 ## Cara Menjalankan
 
 1. **Copy** seluruh folder ke dalam `htdocs` XAMPP.
@@ -50,7 +65,7 @@ index.php
 
 ## Catatan
 
-- Endpoint AJAX menggunakan path relatif (`buku-tamu/simpan`) agar fleksibel.
+- Endpoint AJAX menggunakan path relatif (`simpan`, `data`, `update`, `hapus`) agar fleksibel.
 - Jika ingin mengubah tampilan, edit file di `view/`.
 - Jika ingin menambah fitur, tambahkan route di `router/web.php` dan logic di controller/model.
 
