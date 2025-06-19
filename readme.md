@@ -1,10 +1,10 @@
-# Buku Tamu PHP Sederhana
+# 📖 Buku Tamu PHP Sederhana
 
 Aplikasi Buku Tamu berbasis PHP, JSON, dan AJAX dengan konsep MVC sederhana dan routing OOP.
 
 ---
 
-## Fitur
+## ✨ Fitur
 
 - **CRUD Buku Tamu** (Create, Read, Update, Delete)
 - Data disimpan di file JSON (`model/bukutamu.json`)
@@ -15,7 +15,7 @@ Aplikasi Buku Tamu berbasis PHP, JSON, dan AJAX dengan konsep MVC sederhana dan 
 
 ---
 
-## Struktur Folder
+## 📁 Struktur Folder
 
 ```
 controller/
@@ -35,7 +35,7 @@ index.php
 
 ---
 
-## Algoritma & Struktur Data
+## 🧠 Algoritma & Struktur Data
 
 - **Struktur Data:**  
   Data buku tamu disimpan dalam bentuk **array (list/sequence)** di file JSON.
@@ -50,7 +50,7 @@ index.php
 
 ---
 
-## Cara Menjalankan
+## 🚀 Cara Menjalankan
 
 1. **Copy** seluruh folder ke dalam `htdocs` XAMPP.
 2. **Pastikan** file `.htaccess` ada di folder `buku-tamu` dan `mod_rewrite` aktif di Apache.
@@ -63,7 +63,7 @@ index.php
 
 ---
 
-## Catatan
+## 📝 Catatan
 
 - Endpoint AJAX menggunakan path relatif (`simpan`, `data`, `update`, `hapus`) agar fleksibel.
 - Jika ingin mengubah tampilan, edit file di `view/`.
@@ -71,6 +71,6 @@ index.php
 
 ---
 
-## Lisensi
+## ⚖️ Lisensi
 
-MIT &copy; 2025 Dimas Bayu Nugroho
+Proyek ini dirilis di bawah lisensi [MIT](https://opensource.org/licenses/MIT) — silakan gunakan, modifikasi, dan distribusikan secara bebas.
