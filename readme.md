@@ -73,4 +73,4 @@ index.php
 
 ## Lisensi
 
-MIT &copy; 2025 Dimas Bayu
+MIT &copy; 2025 Dimas Bayu Nugroho
