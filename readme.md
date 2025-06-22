@@ -65,7 +65,8 @@ index.php
 
 ## 📝 Catatan
 
-- Endpoint AJAX menggunakan path relatif (`simpan`, `data`, `update`, `hapus`) agar fleksibel.
+- Frontend interaktif menggunakan **Vue 3 CDN** (tanpa build, langsung pakai `<script src="https://unpkg.com/vue@3"></script>` di `view/bukutamu.view.php`).
+- Endpoint AJAX menggunakan path relatif (`tamu`, `tamu/update`, `tamu/delete`) agar fleksibel.
 - Jika ingin mengubah tampilan, edit file di `view/`.
 - Jika ingin menambah fitur, tambahkan route di `router/web.php` dan logic di controller/model.
 
