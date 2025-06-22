@@ -1,50 +1,56 @@
 <?php
 
-require_once __DIR__ . '/../config/MySql.php';
-
 class BukutamuModel {
-    private $pdo;
+    private $file;
 
     public function __construct() {
-        $db = new MySql();
-        $this->pdo = $db->getConnection();
+        $this->file = __DIR__ . '/bukutamu.json';
+        if (!file_exists($this->file)) {
+            file_put_contents($this->file, '[]');
+        }
     }
 
     // CREATE
     public function create($data) {
-        $sql = "INSERT INTO tamu (nama, email, pesan) VALUES (:nama, :email, :pesan)";
-        $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([
-            ':nama'  => $data['nama'],
-            ':email' => $data['email'],
-            ':pesan' => $data['pesan']
-        ]);
+        $list = $this->show();
+        // Generate ID unik (timestamp + random)
+        $data['id'] = uniqid();
+        $list[] = $data;
+        return file_put_contents($this->file, json_encode($list, JSON_PRETTY_PRINT));
     }
 
     // READ
     public function show() {
-        $sql = "SELECT * FROM tamu ORDER BY id ASC";
-        $stmt = $this->pdo->query($sql);
-        return $stmt->fetchAll();
+        $json = file_get_contents($this->file);
+        return json_decode($json, true) ?: [];
     }
 
     // UPDATE
     public function update($data) {
-        $sql = "UPDATE tamu SET nama = :nama, email = :email, pesan = :pesan WHERE id = :id";
-        $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([
-            ':nama'  => $data['nama'],
-            ':email' => $data['email'],
-            ':pesan' => $data['pesan'],
-            ':id'    => $data['id']
-        ]);
+        $list = $this->show();
+        $found = false;
+        foreach ($list as &$item) {
+            if ($item['id'] === $data['id']) {
+                $item['nama'] = $data['nama'];
+                $item['email'] = $data['email'];
+                $item['pesan'] = $data['pesan'];
+                $found = true;
+                break;
+            }
+        }
+        if ($found) {
+            return file_put_contents($this->file, json_encode($list, JSON_PRETTY_PRINT));
+        }
+        return false;
     }
 
     // DELETE
     public function delete($id) {
-        $sql = "DELETE FROM tamu WHERE id = :id";
-        $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([':id' => $id]);
+        $list = $this->show();
+        $newList = array_filter($list, function($item) use ($id) {
+            return $item['id'] !== $id;
+        });
+        return file_put_contents($this->file, json_encode(array_values($newList), JSON_PRETTY_PRINT));
     }
 
     public function simpan($data) {
