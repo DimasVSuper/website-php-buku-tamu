@@ -1,56 +1,50 @@
 <?php
 
+require_once __DIR__ . '/../config/MySql.php';
+
 class BukutamuModel {
-    private $file = __DIR__ . '/bukutamu.json';
-    private $data = [];
+    private $pdo;
 
     public function __construct() {
-        if (file_exists($this->file)) {
-            $json = file_get_contents($this->file);
-            $this->data = json_decode($json, true) ?: [];
-        }
+        $db = new MySql();
+        $this->pdo = $db->getConnection();
     }
 
     // CREATE
     public function create($data) {
-        $data['id'] = uniqid();
-        $this->data[] = $data; // Tambah di akhir
-        return $this->commit();
+        $sql = "INSERT INTO tamu (nama, email, pesan) VALUES (:nama, :email, :pesan)";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([
+            ':nama'  => $data['nama'],
+            ':email' => $data['email'],
+            ':pesan' => $data['pesan']
+        ]);
     }
 
     // READ
     public function show() {
-        // Urutkan dari terbaru
-        return $this->data;
+        $sql = "SELECT * FROM tamu ORDER BY id ASC";
+        $stmt = $this->pdo->query($sql);
+        return $stmt->fetchAll();
     }
 
     // UPDATE
     public function update($data) {
-        foreach ($this->data as $i => $item) {
-            if ($item['id'] === $data['id']) {
-                $this->data[$i]['nama']  = $data['nama'];
-                $this->data[$i]['email'] = $data['email'];
-                $this->data[$i]['pesan'] = $data['pesan'];
-                return $this->commit();
-            }
-        }
-        return false;
+        $sql = "UPDATE tamu SET nama = :nama, email = :email, pesan = :pesan WHERE id = :id";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([
+            ':nama'  => $data['nama'],
+            ':email' => $data['email'],
+            ':pesan' => $data['pesan'],
+            ':id'    => $data['id']
+        ]);
     }
 
     // DELETE
     public function delete($id) {
-        foreach ($this->data as $i => $item) {
-            if ($item['id'] === $id) {
-                array_splice($this->data, $i, 1);
-                return $this->commit();
-            }
-        }
-        return false;
-    }
-
-    // Simpan ke file JSON
-    private function commit() {
-        return file_put_contents($this->file, json_encode($this->data, JSON_PRETTY_PRINT)) !== false;
+        $sql = "DELETE FROM tamu WHERE id = :id";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([':id' => $id]);
     }
 
     public function simpan($data) {

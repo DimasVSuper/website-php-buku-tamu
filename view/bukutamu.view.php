@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
     body {
-        background: #f6f8fa;
+        background: linear-gradient(135deg, #a259c6 0%, #6d28d9 100%);
         font-family: 'Segoe UI', Arial, sans-serif;
         margin: 0;
         padding: 0;
@@ -20,7 +20,7 @@
         padding: 32px 28px 24px 28px;
     }
     h2 {
-        color: #1a237e;
+        color: #6d28d9;
         text-align: center;
         margin-bottom: 24px;
         font-weight: 600;
@@ -50,7 +50,7 @@
         background: #fff;
     }
     button[type="submit"], .btn {
-        background: #1976d2;
+        background: #a259c6;
         color: #fff;
         border: none;
         border-radius: 8px;
@@ -63,7 +63,7 @@
         margin-right: 6px;
     }
     button[type="submit"]:hover, .btn:hover {
-        background: #1565c0;
+        background: #6d28d9;
     }
     #response {
         margin-top: 18px;
@@ -89,7 +89,7 @@
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.3s, transform 0.3s;
-        background: #1976d2;
+        background: #a259c6;
         color: #fff;
         display: block;
         visibility: hidden;
@@ -124,7 +124,7 @@
     }
     .tamu-item .tamu-nama {
         font-weight: 600;
-        color: #1976d2;
+        color: #a259c6;
         font-size: 16px;
     }
     .tamu-item .tamu-email {
@@ -232,8 +232,9 @@
         });
     }
 
+    // Ambil semua tamu
     function fetchTamuList() {
-        fetch('data')
+        fetch('tamu')
             .then(res => res.json())
             .then(data => renderTamuList(data))
             .catch(() => {
@@ -241,11 +242,12 @@
             });
     }
 
-    // Fungsi tambah tamu
+    // Tambah tamu
     function tambahTamu(formData, form) {
-        fetch('simpan', {
+        fetch('tamu', {
             method: 'POST',
-            body: formData
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(Object.fromEntries(formData))
         })
         .then(response => response.text())
         .then(data => {
@@ -265,18 +267,13 @@
         });
     }
 
-    // Fungsi update tamu
+    // Update tamu
     function updateTamu(formData, form) {
-        const obj = {};
-        for (const [key, value] of formData.entries()) {
-            obj[key] = value;
-        }
-        fetch('update', {
+        const id = formData.get('id');
+        fetch(`tamu/${id}`, {
             method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(obj)
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(Object.fromEntries(formData))
         })
         .then(response => response.text())
         .then(data => {
@@ -296,6 +293,56 @@
         });
     }
 
+    // Hapus tamu
+    function hapusTamu(id) {
+        fetch(`tamu/${id}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.text())
+        .then(data => {
+            fetchTamuList();
+            if (data.toLowerCase().includes('berhasil')) {
+                showPopup('Data berhasil dihapus', true);
+            } else {
+                showPopup('Gagal menghapus data', false);
+            }
+        })
+        .catch(() => {
+            showPopup('Gagal menghapus data', false);
+        });
+    }
+
+    // Validasi frontend sebelum submit
+    function validateForm(formData) {
+        const nama = formData.get('nama')?.trim();
+        const email = formData.get('email')?.trim();
+        const pesan = formData.get('pesan')?.trim();
+
+        if (!nama || !email || !pesan) {
+            showPopup('Semua field wajib diisi!', false);
+            return false;
+        }
+        if (nama.length > 100) {
+            showPopup('Nama maksimal 100 karakter!', false);
+            return false;
+        }
+        if (email.length > 100) {
+            showPopup('Email maksimal 100 karakter!', false);
+            return false;
+        }
+        // Validasi email sederhana
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showPopup('Format email tidak valid!', false);
+            return false;
+        }
+        if (pesan.length > 1000) {
+            showPopup('Pesan maksimal 1000 karakter!', false);
+            return false;
+        }
+        return true;
+    }
+
     // Event submit form
     document.getElementById('bukuTamuForm').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -303,6 +350,9 @@
         const formData = new FormData(form);
         const id = formData.get('id');
         const isEdit = id && id.trim() !== '';
+
+        // Validasi sebelum submit
+        if (!validateForm(formData)) return;
 
         if (isEdit) {
             updateTamu(formData, form);
@@ -323,7 +373,7 @@
     document.getElementById('tamuList').addEventListener('click', function(e) {
         if (e.target.classList.contains('btn-edit')) {
             const id = e.target.dataset.id;
-            fetch('data')
+            fetch('tamu')
                 .then(res => res.json())
                 .then(data => {
                     const tamu = data.find(item => item.id === id);
@@ -340,24 +390,7 @@
         if (e.target.classList.contains('btn-delete')) {
             const id = e.target.dataset.id;
             if (confirm('Yakin ingin menghapus data ini?')) {
-                const formData = new FormData();
-                formData.append('id', id);
-                fetch('hapus', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.text())
-                .then(data => {
-                    fetchTamuList();
-                    if (data.toLowerCase().includes('berhasil')) {
-                        showPopup('Data berhasil dihapus', true);
-                    } else {
-                        showPopup('Gagal menghapus data', false);
-                    }
-                })
-                .catch(() => {
-                    showPopup('Gagal menghapus data', false);
-                });
+                hapusTamu(id);
             }
         }
     });

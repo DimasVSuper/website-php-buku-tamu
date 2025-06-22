@@ -9,47 +9,36 @@ $router = new Router();
 $router->get('/', function() {
     require __DIR__ . '/../view/bukutamu.view.php';
 });
-$router->get('', function() { // Tambahkan ini!
+$router->get('', function() {
     require __DIR__ . '/../view/bukutamu.view.php';
 });
 
-// CREATE: Simpan data buku tamu (AJAX POST)
-$router->post('simpan', function() {
+// CREATE: Tambah tamu (POST /tamu)
+$router->post('tamu', function() {
     $controller = new BukutamuController();
-    $data = [
-        'nama'  => $_POST['nama'] ?? '',
-        'email' => $_POST['email'] ?? '',
-        'pesan' => $_POST['pesan'] ?? ''
-    ];
+    $data = json_decode(file_get_contents("php://input"), true);
     echo $controller->simpan($data);
 });
 
-// READ: Tampilkan semua data buku tamu (AJAX GET)
-$router->get('data', function() {
+// READ: Ambil semua tamu (GET /tamu)
+$router->get('tamu', function() {
     $controller = new BukutamuController();
     header('Content-Type: application/json');
     echo json_encode($controller->tampil());
 });
 
-// UPDATE: Update data buku tamu (AJAX PATCH)
-$router->patch('update', function() {
-    $patch_vars = json_decode(file_get_contents("php://input"), true);
-    error_log('PATCH DATA: ' . print_r($patch_vars, true));
+// UPDATE: Update tamu (PATCH /tamu/{id})
+$router->patch('tamu/(:any)', function($id) {
     $controller = new BukutamuController();
-    echo $controller->update($patch_vars);
+    $data = json_decode(file_get_contents("php://input"), true);
+    $data['id'] = $id;
+    echo $controller->update($data);
 });
 
-// DELETE: Hapus data buku tamu (AJAX POST/DELETE)
-$router->post('hapus', function() {
+// DELETE: Hapus tamu (DELETE /tamu/{id})
+$router->delete('tamu/(:any)', function($id) {
     $controller = new BukutamuController();
-    $id = $_POST['id'] ?? '';
     echo $controller->hapus($id);
 });
-$router->delete('hapus', function() {
-    parse_str(file_get_contents("php://input"), $del_vars);
-    $controller = new BukutamuController();
-    echo $controller->hapus($del_vars['id'] ?? null);
-});
 
-// Jalankan router
 $router->dispatch();

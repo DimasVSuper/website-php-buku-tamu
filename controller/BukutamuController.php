@@ -18,6 +18,18 @@ class BukutamuController {
         ) {
             return "Semua field wajib diisi!";
         }
+        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            return "Format email tidak valid!";
+        }
+        if (strlen($data['nama']) > 100) {
+            return "Nama terlalu panjang (maksimal 100 karakter)!";
+        }
+        if (strlen($data['email']) > 100) {
+            return "Email terlalu panjang (maksimal 100 karakter)!";
+        }
+        if (strlen($data['pesan']) > 1000) {
+            return "Pesan terlalu panjang (maksimal 1000 karakter)!";
+        }
         return $this->model->create($data)
             ? "Terima kasih, data berhasil disimpan!"
             : "Gagal menyimpan data.";
@@ -37,6 +49,18 @@ class BukutamuController {
             empty($data['pesan'])
         ) {
             return "Semua field wajib diisi!";
+        }
+        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            return "Format email tidak valid!";
+        }
+        if (strlen($data['nama']) > 100) {
+            return "Nama terlalu panjang (maksimal 100 karakter)!";
+        }
+        if (strlen($data['email']) > 100) {
+            return "Email terlalu panjang (maksimal 100 karakter)!";
+        }
+        if (strlen($data['pesan']) > 1000) {
+            return "Pesan terlalu panjang (maksimal 1000 karakter)!";
         }
         return $this->model->update($data)
             ? "Data berhasil diupdate!"

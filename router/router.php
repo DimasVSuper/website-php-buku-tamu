@@ -118,15 +118,28 @@ class Router
             $uri = substr($uri, strlen($scriptName));
         }
         $uri = strtok($uri, '?');
-        $uri = '/' . ltrim($uri, '/'); // <--- Perbaikan di sini
+        $uri = '/' . ltrim($uri, '/');
 
         $method = $_SERVER['REQUEST_METHOD'];
 
+        // Cek route statis dulu
         if (isset($this->routes[$method][$uri])) {
             call_user_func($this->routes[$method][$uri]);
-        } else {
-            error_log("404: method=$method, uri=$uri");
-            $this->render404();
+            return;
         }
+
+        // Cek dynamic route (misal: /tamu/(:any))
+        foreach ($this->routes[$method] as $route => $handler) {
+            if (strpos($route, '(:any)') !== false) {
+                $pattern = str_replace('(:any)', '([^/]+)', $route);
+                if (preg_match('#^' . $pattern . '$#', $uri, $matches)) {
+                    array_shift($matches); // buang full match
+                    return call_user_func_array($handler, $matches);
+                }
+            }
+        }
+
+        error_log("404: method=$method, uri=$uri");
+        $this->render404();
     }
 }
