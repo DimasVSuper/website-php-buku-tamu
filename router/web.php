@@ -27,18 +27,18 @@ $router->get('tamu', function() {
     echo json_encode($controller->tampil());
 });
 
-// UPDATE: Update tamu (PATCH /tamu/{id})
-$router->patch('tamu/(:any)', function($id) {
+// UPDATE: Update tamu (POST /tamu/update)
+$router->post('tamu/update', function() {
     $controller = new BukutamuController();
     $data = json_decode(file_get_contents("php://input"), true);
-    $data['id'] = $id;
     echo $controller->update($data);
 });
 
-// DELETE: Hapus tamu (DELETE /tamu/{id})
-$router->delete('tamu/(:any)', function($id) {
+// DELETE: Hapus tamu (POST /tamu/delete)
+$router->post('tamu/delete', function() {
     $controller = new BukutamuController();
-    echo $controller->hapus($id);
+    $data = json_decode(file_get_contents("php://input"), true);
+    echo $controller->hapus($data['id'] ?? '');
 });
 
 $router->dispatch();

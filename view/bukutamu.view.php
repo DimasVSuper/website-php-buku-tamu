@@ -26,28 +26,37 @@
         font-weight: 600;
         letter-spacing: 1px;
     }
+    .card {
+        background: #f9f6fd;
+        border-radius: 14px;
+        box-shadow: 0 4px 24px 0 rgba(162,89,198,0.13);
+        padding: 22px 18px 18px 18px;
+        margin-bottom: 24px;
+    }
     form label {
         display: block;
-        margin-bottom: 6px;
-        color: #374151;
-        font-size: 15px;
+        margin-bottom: 4px;
+        color: #6d28d9;
+        font-size: 14px;
         font-weight: 500;
     }
     form input, form textarea {
         width: 100%;
-        padding: 10px 12px;
-        margin-bottom: 18px;
-        border: 1px solid #e0e6ed;
-        border-radius: 8px;
-        font-size: 15px;
+        padding: 7px 10px;
+        margin-bottom: 14px;
+        border: 1.5px solid #e0e6ed;
+        border-radius: 7px;
+        font-size: 14px;
         background: #f9fafb;
-        transition: border-color 0.2s;
+        transition: border-color 0.2s, box-shadow 0.2s;
         resize: none;
+        box-shadow: 0 1px 4px 0 rgba(162,89,198,0.08);
     }
     form input:focus, form textarea:focus {
-        border-color: #1976d2;
+        border-color: #a259c6;
         outline: none;
         background: #fff;
+        box-shadow: 0 0 0 2px #a259c633;
     }
     button[type="submit"], .btn {
         background: #a259c6;
@@ -97,14 +106,14 @@
         background: #d32f2f;
     }
     .tamu-list {
-        margin-top: 32px;
+        margin-top: 0;
     }
     .tamu-item {
         background: #f9fafb;
         border-radius: 8px;
         padding: 14px 14px 10px 14px;
         margin-bottom: 14px;
-        box-shadow: 0 1px 4px rgba(60,72,88,0.06);
+        box-shadow: 0 1px 4px rgba(162,89,198,0.10);
         position: relative;
         transition: box-shadow 0.2s;
     }
@@ -151,93 +160,69 @@
         background: #ffcdd2;
         color: #b71c1c;
     }
-    .edit-form input, .edit-form textarea {
-        margin-bottom: 10px;
-    }
-    @media (max-width: 600px) {
-        .container {
-            margin: 16px;
-            padding: 18px 8px 12px 8px;
-        }
-    }
     </style>
 </head>
 <body>
 <div id="app" class="container">
     <h2>Buku Tamu</h2>
-    <form @submit.prevent="onSubmit">
-        <input type="hidden" v-model="form.id">
-        <label for="nama">Nama:</label>
-        <input type="text" id="nama" v-model="form.nama" required>
-
-        <label for="email">Email:</label>
-        <input type="email" id="email" v-model="form.email" required>
-
-        <label for="pesan">Pesan:</label>
-        <textarea id="pesan" v-model="form.pesan" rows="4" required></textarea>
-
-        <button type="submit" id="submitBtn">{{ form.id ? 'Update' : 'Kirim' }}</button>
-        <button type="button" id="cancelEditBtn"
-            v-if="form.id"
-            @click="resetForm"
-            style="background:#e0e0e0;color:#374151;">Batal</button>
-    </form>
+    <div class="card">
+        <form @submit.prevent="onSubmit">
+            <input type="hidden" v-model="form.id">
+            <label for="nama">Nama:</label>
+            <input type="text" id="nama" v-model="form.nama" required>
+            <label for="email">Email:</label>
+            <input type="email" id="email" v-model="form.email" required>
+            <label for="pesan">Pesan:</label>
+            <textarea id="pesan" v-model="form.pesan" rows="4" required></textarea>
+            <button type="submit" id="submitBtn">{{ form.id ? 'Update' : 'Kirim' }}</button>
+            <button type="button" id="cancelEditBtn"
+                v-if="form.id"
+                @click="resetForm"
+                style="background:#e0e0e0;color:#374151;">Batal</button>
+        </form>
+    </div>
     <div id="popup" :class="{show: popup.show, error: !popup.success}" v-text="popup.message"></div>
-    <div class="tamu-list" id="tamuList">
-        <div v-if="tamuList.length === 0" style="text-align:center;color:#aaa;">Belum ada tamu.</div>
-        <div v-for="item in tamuList" :key="item.id" class="tamu-item">
-            <div class="tamu-info">
-                <span class="tamu-nama">{{ item.nama }}</span>
-                <span class="tamu-email">&lt;{{ item.email }}&gt;</span>
-            </div>
-            <div class="tamu-pesan">{{ item.pesan }}</div>
-            <div class="tamu-actions">
-                <button class="btn btn-edit" @click="editTamu(item)">Edit</button>
-                <button class="btn btn-delete" @click="hapusTamu(item.id)">Hapus</button>
+    <div class="card">
+        <h3 style="color:#6d28d9;text-align:center;margin-bottom:18px;">Daftar Tamu</h3>
+        <div class="tamu-list" id="tamuList">
+            <div v-if="tamuList.length === 0" style="text-align:center;color:#aaa;">Belum ada tamu.</div>
+            <div v-for="item in tamuList" :key="item.id" class="tamu-item">
+                <div class="tamu-info">
+                    <span class="tamu-nama">{{ item.nama }}</span>
+                    <span class="tamu-email">&lt;{{ item.email }}&gt;</span>
+                </div>
+                <div class="tamu-pesan">{{ item.pesan }}</div>
+                <div class="tamu-actions">
+                    <button class="btn btn-edit" @click="editTamu(item)">Edit</button>
+                    <button class="btn btn-delete" @click="hapusTamu(item.id)">Hapus</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
 <script src="https://unpkg.com/vue@3"></script>
 <script>
-const { createApp, reactive } = Vue;
-
+const { createApp } = Vue;
 createApp({
     data() {
         return {
             tamuList: [],
-            form: {
-                id: '',
-                nama: '',
-                email: '',
-                pesan: ''
-            },
-            popup: {
-                show: false,
-                message: '',
-                success: true
-            }
+            form: { id: '', nama: '', email: '', pesan: '' },
+            popup: { show: false, message: '', success: true }
         }
     },
-    mounted() {
-        this.fetchTamuList();
-    },
+    mounted() { this.fetchTamuList(); },
     methods: {
         showPopup(message, success = true) {
             this.popup.message = message;
             this.popup.success = success;
             this.popup.show = true;
-            setTimeout(() => {
-                this.popup.show = false;
-            }, 2000);
+            setTimeout(() => { this.popup.show = false; }, 2000);
         },
         fetchTamuList() {
             fetch('tamu')
                 .then(res => res.json())
-                .then(data => {
-                    this.tamuList = data || [];
-                })
+                .then(data => { this.tamuList = data || []; })
                 .catch(() => {
                     this.tamuList = [];
                     this.showPopup('Gagal memuat data tamu.', false);
@@ -246,32 +231,26 @@ createApp({
         validateForm() {
             const { nama, email, pesan } = this.form;
             if (!nama.trim() || !email.trim() || !pesan.trim()) {
-                this.showPopup('Semua field wajib diisi!', false);
-                return false;
+                this.showPopup('Semua field wajib diisi!', false); return false;
             }
             if (nama.length > 100) {
-                this.showPopup('Nama maksimal 100 karakter!', false);
-                return false;
+                this.showPopup('Nama maksimal 100 karakter!', false); return false;
             }
             if (email.length > 100) {
-                this.showPopup('Email maksimal 100 karakter!', false);
-                return false;
+                this.showPopup('Email maksimal 100 karakter!', false); return false;
             }
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
-                this.showPopup('Format email tidak valid!', false);
-                return false;
+                this.showPopup('Format email tidak valid!', false); return false;
             }
             if (pesan.length > 1000) {
-                this.showPopup('Pesan maksimal 1000 karakter!', false);
-                return false;
+                this.showPopup('Pesan maksimal 1000 karakter!', false); return false;
             }
             return true;
         },
         onSubmit() {
             if (!this.validateForm()) return;
             if (this.form.id) {
-                // Update
                 fetch('tamu/update', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -289,7 +268,6 @@ createApp({
                 })
                 .catch(() => this.showPopup('Ada yang salah, silahkan coba lagi', false));
             } else {
-                // Tambah
                 fetch('tamu', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
